@@ -1,11 +1,6 @@
 package sk.study.mea.core;
 
-import java.util.List;
 import java.util.Random;
-
-import lombok.Getter;
-import sk.study.mea.core.sudoku.SudokuFixedState;
-import sk.study.mea.core.sudoku.SudokuState;
 
 /**
  * Class MEA represent implemetation of Multiagent Evolution Algorithm invented by David Chudoba.
