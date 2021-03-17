@@ -3,6 +3,8 @@ package sk.study.mea.core.sudoku;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Random;
+
 public class TestSudokuFixedState
 {
 
@@ -23,8 +25,12 @@ public class TestSudokuFixedState
 		SudokuTabuList tabu = new SudokuTabuList(state);
 		//System.out.println();
 		//System.out.println(tabu.toStringOld());
+//		System.out.println();
+//		System.out.println(tabu);
+
+		SudokuAgentState agentState = new SudokuAgentState(state, new Random());
 		System.out.println();
-		System.out.println(tabu);
+		System.out.println(agentState);
 	}
 
 	private int[] getSudokuArray() {

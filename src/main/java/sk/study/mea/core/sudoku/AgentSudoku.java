@@ -1,5 +1,8 @@
 package sk.study.mea.core.sudoku;
 
+import static sk.study.mea.core.sudoku.SudokuConstants.*;
+import sk.study.mea.core.Agent;
+
 /**
  * Class AgentSudoku represent implemetation of Sudoku agent, which is used by MEA Sudoku algorithm.
  * Its provide all needed methods(generate new state, mutation, fitness function , local search methods)
@@ -7,65 +10,72 @@ package sk.study.mea.core.sudoku;
  *
  * @author David Durcak
  */
-public class AgentSudoku
+public class AgentSudoku // TODO implements Agent
 {
+	private final SudokuState fixed; // TODO rename
+	private final SudokuRowsEmptyPositions fixedList; // TODO rename
+	private final SudokuTabuList tabuList; // TODO rename
 
+	private final int parMaxTrials; // parameter
+	private final int lifePoints;
+
+
+	// TODO extract, rename, change to double array if possible
+	private final int currentFitness;
+	private final int bestMilestoneFitness;
+
+	private final int[] currentState;
+	private final int[] currentFitnessList;
+	private final int[] bestMilestoneState;
+	private final int[] mutState;
+	private final int[] mutFitnessList;
+	private final int[] localBestMutState;
+	private final int[] localBestMutFitnessList;
+
+
+	// parStartLifePoints, fixedState, fixedLists, parMaxTrials, tabuList
+
+	public AgentSudoku (SudokuState fixed, SudokuRowsEmptyPositions fixedList, SudokuTabuList tabuList, int parMaxTrials, int lifePoints)
+	{
+		this.fixed = fixed;
+		this.fixedList = fixedList;
+		this.tabuList = tabuList;
+		this.parMaxTrials = parMaxTrials;
+		this.lifePoints = lifePoints;
+
+		this.currentFitness			= MAX_FITNESS;
+		this.bestMilestoneFitness	= MAX_FITNESS;
+
+		// TODO refactor
+		this.currentState		= new int[N4];
+		this.bestMilestoneState	= new int[N4];
+		this.mutState			= new int[N4];
+		this.currentFitnessList  = new int[2 * N2];
+		this.mutFitnessList		= new int[2 * N2];
+		this.localBestMutState		= new int[N4] ;
+		this.localBestMutFitnessList = new int[2 * N2];
+	}
+
+	public int getOptimalFiltness() {
+		return OPTIMAL_FITNESS;
+	};
+
+	public boolean localSearchUseHeuristic() {
+
+	};
 }
 
 
-//public:
-//	//AgentSudoku();
-//	AgentSudoku(int newLifePoints, int *fixedState, int *nfixedLists, int nparMaxTrials, int *parTabuList);
-//	AgentSudoku(int newLifePoints, int *fixedState, int *nfixedLists, int* newCurrentState, int newCurrentFitness, int nparMaxTrials,  int *parTabuList);
-//	~AgentSudoku();
-//
-//	static	QStringList	printState( const int *state);
-//
-//	void	addLifePoints()					{ lifePoints++; }
-//	int		decLifePoints()					{ lifePoints--;
-//											  return lifePoints; }
-//
-//	// CurrentState & fitness
-//	int		getCurrentFitness() const		{ return currentFitness; }
-//	int	   *getCurrentState()	const		{ return currentState; }
-//	void	setCurrentState(int *newState){ currentState = newState; }
-//
-//	// BestMilestoneState
-//	int		getBestMilestoneFitness() const			{ return bestMilestoneFitness; }
-//	int	   *getBestMilestoneState()	  const			{ return bestMilestoneState; }
-//	void	setBestMilestoneState( int *newState)	{ bestMilestoneState = newState; }
-//	int		resetMilestoneState();
-//
-//	// local search (edited hill climing algorithm)
-//	int		localSearchUseHeuristic();
-//	// generate new state for new agents
-//	int		generateNewState();
-//
-//
-//private:
-//
-//	// fitness funcion
-//	static	int		fitnessFunctionAllOverState( const int *actualState, int *fitnessList);
-//
-//	// mutation + heuristic + fast fitness function (via change)
-//	int		mutationUseHeurRetFitness( int *newState, const int *newFitnessList) const;
-//
-//private:
-//	int	*fixed;
-//	int	*tabuList;
-//	int *fixedList;
-//	int *currentState;
-//	int *currentFitnessList;
-//	int *bestMilestoneState;
-//	int currentFitness;
-//	int bestMilestoneFitness;
-//	int lifePoints;
-//
-//	int *mutState;
-//	int *mutFitnessList;
-//	int *localBestMutState;
-//	int *localBestMutFitnessList;
-//
-//
-//	// Parameters
-//	int parMaxTrials;
+
+//AgentSudoku:: AgentSudoku(int newLifePoints, int *fixedState, int *nfixedLists, int nparMaxTrials,  int *parTabuList){
+
+//	}
+
+
+
+
+
+
+
+
+

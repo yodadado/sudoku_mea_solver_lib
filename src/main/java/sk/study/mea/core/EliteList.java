@@ -10,8 +10,6 @@ import lombok.Getter;
 @Getter
 public class EliteList<T>
 {
-
-
 	private final Random random;
 	private final int maxSize;
 	private final RandomAccessPriorityQueue<AgentState<T>> list;
@@ -63,5 +61,9 @@ public class EliteList<T>
 		}
 		int randomIndex = random.nextInt(list.size());
 		return Optional.of(list.get(randomIndex));
+	}
+
+	public void clear() {
+		list.clear();
 	}
 }

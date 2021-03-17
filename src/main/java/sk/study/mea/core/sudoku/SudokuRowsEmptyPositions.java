@@ -1,5 +1,8 @@
 package sk.study.mea.core.sudoku;
 
+
+import static sk.study.mea.core.sudoku.SudokuConstants.*;
+
 /**
  * Sudoku rows empty positions definitions.
  *
@@ -10,6 +13,9 @@ package sk.study.mea.core.sudoku;
 public class SudokuRowsEmptyPositions
 {
 	public final int[] fixedLists; // TODO delete
+
+
+	// TODO change to 2 dimenzional array with different row size
 
 	// Count of emtpty positions for each row
 	private final int[] rowsEmptyPositionsCounts;
@@ -63,6 +69,15 @@ public class SudokuRowsEmptyPositions
 			}
 			rowsEmptyPositionsCounts[row] = counter;
 		}
+	}
+
+	int getNotFixedPositionsCountForRow(int rowIndex) {
+		return rowsEmptyPositionsCounts[rowIndex];
+	}
+
+
+	int getNotFixedPositionIndexForRow (int rowIndex, int positionCountIndex) {
+		return rowsEmptyPositions[rowIndex*N2 + positionCountIndex];
 	}
 
 

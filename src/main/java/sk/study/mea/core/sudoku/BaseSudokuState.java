@@ -4,20 +4,20 @@ import sk.study.mea.core.NPProblemDefinition;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Random;
 
-import static sk.study.mea.core.sudoku.SudokuConstants.*;
+import static sk.study.mea.core.sudoku.SudokuConstants.N2;
+import static sk.study.mea.core.sudoku.SudokuConstants.N4;
 
-public class SudokuState implements NPProblemDefinition
+public class BaseSudokuState implements NPProblemDefinition
 {
-	private final int[] state = new int[N4];
+	protected int[] state = new int[N4];
 
-	public SudokuState (int[] inputState) {
+	public BaseSudokuState (int[] inputState) {
 		validateState(inputState);
 		System.arraycopy(inputState, 0, this.state, 0, N4);
 	}
 
-	public SudokuState (SudokuState inputState) {
+	public BaseSudokuState (BaseSudokuState inputState) {
 		System.arraycopy(inputState.state, 0, this.state, 0, N4);
 	}
 
@@ -28,11 +28,6 @@ public class SudokuState implements NPProblemDefinition
 		}
 	}
 
-	@Deprecated
-	public int getValue(int idx) {
-		return state[idx];
-	}
-
 	public int getValue(int row, int col) {
 		return state[row * N2 + col];
 	}
@@ -40,6 +35,7 @@ public class SudokuState implements NPProblemDefinition
 	public int[] getStateCopy() {
 		return Arrays.copyOf(state, state.length);
 	}
+
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
@@ -47,6 +43,26 @@ public class SudokuState implements NPProblemDefinition
 		for (int r=0; r<SudokuConstants.N2; r++) {
 			for (int c=0; c<SudokuConstants.N2; c++) {
 				int v = getValue(r,c);
+				b.append(v == 0 ? "." : String.valueOf(v));
+				b.append(" ");
+				if (c % SudokuConstants.N == 2 && c+1<SudokuConstants.N2) {
+					b.append(" ");
+				}
+			}
+			if (r+1<SudokuConstants.N2) {
+				b.append(System.lineSeparator());
+			}
+		}
+		return b.toString();
+	}
+
+	// TODO remove
+	public static String toString(int[] state) {
+		StringBuilder b = new StringBuilder();
+
+		for (int r=0; r<SudokuConstants.N2; r++) {
+			for (int c=0; c<SudokuConstants.N2; c++) {
+				int v = state[r * N2 + c];
 				b.append(v == 0 ? "." : String.valueOf(v));
 				b.append(" ");
 				if (c % SudokuConstants.N == 2 && c+1<SudokuConstants.N2) {
