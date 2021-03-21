@@ -1,8 +1,8 @@
 package sk.study.mea.core;
 
-public interface AgentState<T>
+public interface AgentState
 {
 	int getFitness ();
 
-	T getState ();
+	// TODO T getState ();
 }

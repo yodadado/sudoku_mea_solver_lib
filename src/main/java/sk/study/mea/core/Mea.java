@@ -1,9 +1,6 @@
 package sk.study.mea.core;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import sk.study.mea.core.sudoku.AgentSudoku;
-import sun.management.resources.agent;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,7 +18,7 @@ import java.util.stream.Stream;
  * @author David Durcak
  */
 //@Slf4j
-public abstract class Mea<D extends NPProblemDefinition, S extends ProblemState>
+public abstract class Mea<D extends NPProblemDefinition, S extends AgentState>
 {
 
 	@Getter
@@ -29,7 +26,7 @@ public abstract class Mea<D extends NPProblemDefinition, S extends ProblemState>
 	@Getter
 	private final MeaConfiguration cfg;
 	private final Random random;
-	private final EliteList eliteList;
+	private final EliteList<S> eliteList;
 	private List<Agent<S>> agents;
 
 //	private final Object fixedState; // TODO *int
@@ -137,18 +134,10 @@ public abstract class Mea<D extends NPProblemDefinition, S extends ProblemState>
 
 			int agentLifePoints = agent.decLifePoints();
 			if (agentLifePoints <= 0) {
-				// TODO
-				// check if agents has milestone state
-				/*
-				if(MAX_FITNESS == (*auxIt)->getBestMilestoneFitness() ){
-					// if no , last state become elit state
-					eliteList.pushState((*auxIt)->getCurrentFitness(), (*auxIt)->getCurrentState() );
-					(*auxIt)->setCurrentState(NULL);
-				}else{
-					eliteList.pushState((*auxIt)->getBestMilestoneFitness(), (*auxIt)->getBestMilestoneState());
-					(*auxIt)->setBestMilestoneState(NULL);
-				}
-				*/
+				// if agent does not have any milestone state, then current state will by used
+				S agentMilestoneState = agent.getMilestoneState().orElse(agent.getCurrentState());
+				eliteList.pushState(agentMilestoneState);
+
 				// remove agent without lifepoints
 				agentIt.remove();
 			}
@@ -161,31 +150,24 @@ public abstract class Mea<D extends NPProblemDefinition, S extends ProblemState>
 	 */
 	private void birthNewAgent (int generation)
 	{
-		if( agents.size() < getCfg().getNumAgents()
+		if (agents.size() < getCfg().getNumAgents()
 			&& 0 == generation % getCfg().getBirthStep()) {
 
-			Optional<Agent<S>> randomAgentState = eliteList.getRandomState();
+			Optional<S> randomAgentState = eliteList.getRandomState();
 			//outstr.Format("EliteList:: getRandomState() get state %3d %p", randomState.fitness, randomState.state); CLogger::Instance()->write(outstr);
 
-			final Agent<S> newAgent;
-			if (randomAgentState.isPresent()) {
-				// TODO
-				// newAgent =
-				// agents.push_back(new AgentSudoku(
-				// parStartLifePoints, fixedState, fixedLists, randomState.state, randomState.fitness, parMaxTrials,	tabuList));
-			} else {
-				// TODO
-				// newAgent =
-				// agents.push_back(new AgentSudoku(
-				// parStartLifePoints, fixedState, fixedLists, parMaxTrials, tabuList));
-			}
-			// TODO
-			// agents.add(newAgent);
+			final Agent<S> newAgent = randomAgentState.isPresent()
+				? createAgentWithState (randomAgentState.get())
+				: generateAgent();
+
+			agents.add(newAgent);
 
 			//++counterAgents;
 			//outstr.Format("agent back %3d.  F %3d   CS  %p,",agents.back()->getName(), agents.back()->getCurrentFitness(), agents.back()->getCurrentState()); m_listbox->AddString(outstr);
 		}
 	}
+
+	protected abstract Agent<S> createAgentWithState (S state);
 
 	/**
 	 * local search
@@ -202,7 +184,7 @@ public abstract class Mea<D extends NPProblemDefinition, S extends ProblemState>
 
 	protected void localSearch (int generation, Agent<S> agent) {
 		// reward or punishment
-		if (agent.localSearchUseHeuristic()) {
+		if (agent.localSearch()) {
 			agent.addLifePoints();
 		}
 

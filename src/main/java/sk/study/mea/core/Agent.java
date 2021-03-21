@@ -1,19 +1,22 @@
 package sk.study.mea.core;
 
-public interface Agent<S extends ProblemState>
+import java.util.Optional;
+
+public interface Agent<S extends AgentState>
 {
-	int getOptimalFiltness();
-	int getCurrentFiltness();
+	int getOptimalFitness();
 	S getCurrentState();
+	Optional<S> getMilestoneState();
+	boolean isCurrentFitnessOptimal();
 
+
+	/**
+	 * local search (edited hill climing algorithm)
+	 *
+	 * @return {@code true} if current state was replaced by mutated state
+	 */
+	boolean localSearch();
+	int addLifePoints();
 	int decLifePoints();
-
-	default boolean isCurrentFitnessOptimal() {
-		return getOptimalFiltness() == getCurrentFiltness();
-	}
-
-	// TODO rename
-	boolean localSearchUseHeuristic();
-	void addLifePoints();
 	void resetMilestoneState();
 }

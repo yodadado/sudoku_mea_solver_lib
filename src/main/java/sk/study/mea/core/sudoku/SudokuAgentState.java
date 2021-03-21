@@ -1,23 +1,45 @@
 package sk.study.mea.core.sudoku;
 
+import lombok.Getter;
+import sk.study.mea.core.AgentState;
 import sk.study.mea.core.AnsiColorCodes;
+import sk.study.mea.core.ProblemState;
 
 import java.util.*;
 
 import static sk.study.mea.core.sudoku.SudokuConstants.*;
 
-public class SudokuAgentState
+public class SudokuAgentState implements AgentState
 {
 	private final int[][] state;
+	private final int[] colFitnessList;
+	private final int[] blockFitnessList;
+	@Getter
 	private int fitness;
-	private int[] colFitnessList;
-	private int[] blockFitnessList;
 
+
+	// used when generating new agents
 	public SudokuAgentState (AnalysedSudokuProblemDefinition analysedProblemDef, Random random) {
 		this.state = generateState(analysedProblemDef, random);
 		this.colFitnessList = fitnessForColumns(state);
 		this.blockFitnessList = fitnessForBlocks(state);
 		this.fitness = sumColumnsAndBlockFitness(colFitnessList, blockFitnessList);
+	}
+
+	// used when create agent from random elite list state
+	public SudokuAgentState (SudokuAgentState other) {
+		this.state = Utils.cloneMatrix(other.state);
+		this.colFitnessList = other.colFitnessList.clone();
+		this.blockFitnessList = other.blockFitnessList.clone();
+		this.fitness = other.getFitness();
+	}
+
+	@Deprecated
+	public void setTo (SudokuAgentState other) {
+		Utils.matrixcopy(other.state, this.state);
+		Utils.arraycopy(other.colFitnessList, this.colFitnessList);
+		Utils.arraycopy(other.blockFitnessList, this.blockFitnessList);
+		this.fitness = other.getFitness();
 	}
 
 	private static int[][] generateState(AnalysedSudokuProblemDefinition analysedProblemDef, Random random) {
@@ -38,33 +60,6 @@ public class SudokuAgentState
 					newState[row][col] = missingValues.get(valueIdx);
 				}
 			}
-
-			// TODO remove
-//			//////////////// OLD:
-//		boolean[] usedValues = new boolean[N2];
-			//			// set every ones to zero
-//			for (int i = 0; i < N2; ++i) {
-//				usedValues[i] = false;
-//			}
-//
-//			// do pola usedValues, si poznacime, kotre cisla (valueIndexes) v riadku su uz pouzite
-//			for (int col = 0; col < N2; ++col) {
-//				Optional<Integer> value = problemDefinition.getValue(row, col);
-//				if (value.isPresent()) {
-//					usedValues[value.get() - 1] = true;
-//				}
-//			}
-//			// postupne pre vsetky pozicie sa budu generovat cisla ktore este niesu pouzite
-//			for (int col = 0; col < N2; ++col) {
-//				if (NOT_USED == newState[row][col]) {
-//					int randomValueIndex;
-//					do {
-//						randomValueIndex = random.nextInt(N2);
-//					} while (usedValues[randomValueIndex]);
-//					newState[row][col] = randomValueIndex + 1;
-//					usedValues[randomValueIndex] = true;
-//				}
-//			}
 		}
 
 		return newState;
@@ -75,23 +70,28 @@ public class SudokuAgentState
 		boolean[] valueUsed = new boolean[N2];
 
 		for (int col = 0; col < N2; col++) {
-			int colFitness = 0;
-			for (int i = 0; i < N2; i++) {
-				valueUsed[i] = false;
-			}
-
-			for (int row = 0; row < N2; row++) {
-				int value = state[row][col];
-				if (valueUsed[value - 1]) {
-					colFitness++;
-				} else {
-					valueUsed[value - 1] = true;
-				}
-			}
-			fitnessList[col] = colFitness;
+			fitnessList[col] = fitnessForColumn (state, valueUsed, col);
 		}
 
 		return fitnessList;
+	}
+
+	private static int fitnessForColumn (int[][] state, boolean[] valueUsed, int col) {
+		int columnFitness = 0;
+		for (int i = 0; i < N2; i++) {
+			valueUsed[i] = false;
+		}
+
+		for (int row = 0; row < N2; row++) {
+			int value = state[row][col];
+			if (valueUsed[value - 1]) {
+				columnFitness++;
+			} else {
+				valueUsed[value - 1] = true;
+			}
+		}
+
+		return columnFitness;
 	}
 
 	private static int[] fitnessForBlocks(int[][] state) {
@@ -100,30 +100,35 @@ public class SudokuAgentState
 
 		for (int blockBow = 0; blockBow < N; blockBow++) {
 			for (int blockCol = 0; blockCol < N; blockCol++) {
-				int blockFitness = 0;
-				for (int i = 0; i < N2; i++) {
-					valueUsed[i] = false;
-				}
-
 				int block = blockBow * N + blockCol;
 				int blockStartRow = blockBow * N;
 				int blockStartCol = blockCol * N;
 
-				for (int row = blockStartRow + N-1; row >= blockStartRow; row--) {
-					for (int col = blockStartCol + N-1; col >= blockStartCol; col--) {
-						int value = state[row][col];
-						if (valueUsed[value - 1]) {
-							blockFitness++;
-						} else {
-							valueUsed[value - 1] = true;
-						}
-					}
-				}
-				fitnessList[block] = blockFitness;
+				fitnessList[block] = fitnessForBlock(state, valueUsed, blockStartRow, blockStartCol);
 			}
 		}
 
 		return fitnessList;
+	}
+
+	private static int fitnessForBlock(int[][] state, boolean[] valueUsed, int blockStartRow, int blockStartCol) {
+		int blockFitness = 0;
+		for (int i = 0; i < N2; i++) {
+			valueUsed[i] = false;
+		}
+
+		for (int row = blockStartRow + N-1; row >= blockStartRow; row--) {
+			for (int col = blockStartCol + N-1; col >= blockStartCol; col--) {
+				int value = state[row][col];
+				if (valueUsed[value - 1]) {
+					blockFitness++;
+				} else {
+					valueUsed[value - 1] = true;
+				}
+			}
+		}
+
+		return blockFitness;
 	}
 
 	private static int sumColumnsAndBlockFitness(int[] colFitnessList, int[] blockFitnessList) {
@@ -135,145 +140,73 @@ public class SudokuAgentState
 		return fitnessSum;
 	}
 
-	@Override public String toString ()
-	{
-		return new StringBuilder()
-			.append("Fitness=")
-			.append(AnsiColorCodes.ANSI_GREEN)
-			.append(fitness)
-			.append(AnsiColorCodes.ANSI_GREEN)
-			.append(" colFitness=")
-			.append(Arrays.toString(colFitnessList))
-			.append(" blockFitness=")
-			.append(Arrays.toString(blockFitnessList))
-			.append("\n")
-			.append(stateToStringBuilder())
-			.toString();
+	public SudokuAgentState mutate(Random random, AnalysedSudokuProblemDefinition analysedProblemDef) {
+		SudokuAgentState newState = new SudokuAgentState(this);
+		mutateAndRecalculateFitness (random, analysedProblemDef, newState);
+
+		return newState;
 	}
 
-	private StringBuilder stateToStringBuilder () {
-		StringBuilder b = new StringBuilder();
-		for (int row = 0; row < N2; row++) {
-			for (int col = 0; col < N2; col++) {
-				int value = state[row][col];
-				// TODO mark fixed values by colors
-				b.append(value == 0 ? "." : String.valueOf(value));
-				b.append(" ");
-				if (col % N == 2 && col + 1 < N2) {
-					b.append(" ");
-				}
-			}
-			if (row + 1 < N2) {
-				b.append(System.lineSeparator());
-			}
-		}
-
-		return b;
-	}
-
-	// mutation + heuristic + fast fitness function (via change)
-	//int	 AgentSudoku:: mutationUseHeurRetFitness(int *newState, const int *newFitnessList) const {
-	// mutation  MUT-5  only 1 row WITHOUT probability using fixedList, new fitness
-
-	public static void mutationUseHeurRetFitnessFrom (int[] state, int[] fitnessListCols, int[] fitnessListBlocks )
-	{
-
-		// TODO
-//		mutationUseHeurRetFitness (
-//			Arrays.copyOf(state, state.length),
-//			Arrays.copyOf(fitnessListCols, fitnessListCols.length),
-//			Arrays.copyOf(fitnessListBlocks, fitnessListBlocks.length));
-	}
-
-	public static void mutateUseHeurRetFitness ( SudokuAgentState agentState, AnalysedSudokuProblemDefinition analysedProblemDef, Random random ) {
+	/**
+	 * Mutate input agent stated and recalculate its fitness.
+	 * <br>
+	 * Mutation is performed by swapping to random columns in random row selected with using heuristic optimalization algorithm.
+	 *
+	 * @param random the random
+	 * @param analysedProblemDef the analysed problem definiton
+	 * @param agentState the mutated agent
+	 */
+	private static void mutateAndRecalculateFitness (Random random, AnalysedSudokuProblemDefinition analysedProblemDef, SudokuAgentState agentState) {
 		int[][] state = agentState.state;
-		int[] fitnessListCols = agentState.colFitnessList; // TODO rename
-		int[] fitnessListBlocks = agentState.blockFitnessList; // TODO rename
+		int[] colFitnessList = agentState.colFitnessList;
+		int[] blockFitnessList = agentState.blockFitnessList;
 
-		//		memcpy(newState, currentState, N4 * sizeof(int));
-		//		memcpy((void *)newFitnessList, currentFitnessList, 2*N2*sizeof(int));
+		SwapPositionModel swapModel = getRandomSwapPositionUsingHeuristic (state, analysedProblemDef, random );
+		int row = swapModel.getRow();
+		int col1 = swapModel.getCol1();
+		int col2 = swapModel.getCol2();
 
-		int i;
-		int	position1;
-		int	position2;
-		int	offset;
-		int	counter;
+		// swap positions
+		swapValuesInRow(state[row], col1, col2);
+
+		//  Fitness , evaluate only changes------------------------------------------
+		boolean[] valueUsed = new boolean[N2];
+
+		// columns fitness difference
+		int fitDiffCol1 = fitnessForColumn (state, valueUsed, col1) - colFitnessList[col1];
+		int fitDiffCol2 = fitnessForColumn (state, valueUsed, col2) - colFitnessList[col2];
+		colFitnessList[col1] += fitDiffCol1;
+		colFitnessList[col2] += fitDiffCol2;
+
+		// blocks fitness difference
+		// row < 3 ? 0 : (row < 6 ? 3 : 6)
+		int blockStartRow = row < N ? 0 : ((row < N + N) ? N : N + N);
+		int blockStartCol1 = col1 < N ? 0 : ((col1 < N + N) ? N : N + N);
+		int blockStartCol2 = col2 < N ? 0 : ((col2 < N + N) ? N : N + N);
+
+		int block1 = blockStartRow + col1 % N;
+		int block2 = blockStartRow + col2 % N;
+
+		int fitDiffBlock1 = fitnessForBlock(state, valueUsed, blockStartRow, blockStartCol1) - blockFitnessList[col1];
+		int fitDiffBlock2 = fitnessForBlock(state, valueUsed, blockStartRow, blockStartCol2) - blockFitnessList[col2];
+		blockFitnessList[block1] += fitDiffBlock1;
+		blockFitnessList[block2] += fitDiffBlock2;
+
+		// update fitness
+		agentState.fitness += fitDiffCol1 + fitDiffCol2 + fitDiffBlock1 + fitDiffBlock2;
+	}
+
+	private static SwapPositionModel getRandomSwapPositionUsingHeuristic (int[][] state, AnalysedSudokuProblemDefinition analysedProblemDef, Random random ) {
 		int	numConflicts;
 		// random row with nofixed positions >= 2
 		int	tabuCounter = 0;
-
-		boolean[] existArray = new boolean[N2];
-
-//		{ ///////////// TODO remove brackets
-//			int row;
-//			do {
-//				// find row with least 2 not fixed positions
-//				do {
-//					i = random.nextInt(N2);
-//					offset = i * N2;
-//					// counter = fixedList[offset + i];
-//					row = i;
-//					counter = analysedProblemDef.getEmptyRowColumns().getNotFixedPositionsCountForRow(row);
-//				} while (counter < 2);
-//
-//				// random 2 not the same positions
-//				position1 = random.nextInt(counter);
-//				do {
-//					position2 = random.nextInt(counter);
-//				} while (position1 == position2);
-//
-//				// get positions from fixedList
-//				position1 = analysedProblemDef.getEmptyRowColumns().getNotFixedPositionIndexForRow (row, position1);
-//				position2 = analysedProblemDef.getEmptyRowColumns().getNotFixedPositionIndexForRow (row, position2);
-//
-//				// Tabu heuristics
-//
-//				tabuCounter++;
-//				numConflicts = 0;
-//				// 1) ci bude cislo s pozicie1 tabu na pozicii2
-//				// 2) ci bude cislo s pozicie2 tabu na pozicii1
-//				// 3) ci je cislo s pozicie1 tabu na pozicii1
-//				// 4) ci je cislo s pozicie2 tabu na pozicii2
-//
-//
-//
-//				if (analysedProblemDef.getTabuList().isTabuByValue(row, position2, state[row][position1])) {
-//					numConflicts += 2;
-//				}
-//				if (analysedProblemDef.getTabuList().isTabuByValue(row, position1, state[row][position2])) {
-//					numConflicts += 2;
-//				}
-//				if (analysedProblemDef.getTabuList().isTabuByValue(row, position1, state[row][position1])) {
-//					numConflicts--;
-//				}
-//				if (analysedProblemDef.getTabuList().isTabuByValue(row, position2, state[row][position2])) {
-//					numConflicts--;
-//				}
-//			} while ((0 < numConflicts  && 4 > tabuCounter)
-//				|| (1 < numConflicts  && 8 > tabuCounter));
-//
-//			// swap positions
-//			swapValuesInRow(state[row], position1, position2);
-//
-//
-//
-//
-//		}
-
-
-
-
-		////////////////
-
-		int row; // TODO == 1
-		int col1; // TODO == position1
-		int col2; // TODO == position2
+		int row;
+		int col1;
+		int col2;
 		do {
 			// find random row with least 2 not fixed positions
 			do {
 				row = random.nextInt(N2);
-				// i = row; // TODO
-				// offset = row * N2;
 			} while (analysedProblemDef.getEmptyRowColumns().getNotFixedPositionsCountForRow(row) < 2);
 
 			col1 = analysedProblemDef.getEmptyRowColumns().getRandomNotFixedColumnInRow(row, random);
@@ -307,121 +240,43 @@ public class SudokuAgentState
 		} while ((0 < numConflicts && tabuCounter < 4)
 			|| (1 < numConflicts && tabuCounter < 8));
 
-		// swap positions
-//		int swap = state[row][position1];
-//		state[row][position1] = state[row][position2];
-//		state[row][position2] = swap;
-		swapValuesInRow(state[row], col1, col2);
-
-		/////////////////////
-		
-		/*
-
-		//  Fitness , evaluate only changes------------------------------------------
-		int fc1, fc2, fb1, fb2, fit, k, j1, j2, c, pos, offs;
-
-		if(3 > i) k = 0;
-		else if(5 < i) k = 2;
-		else k = 1;
-
-		if(3 > position1) j1 = 0;
-		else if(5 < position1) j1 = 2;
-		else j1 = 1;
-
-		if(3 > position2) j2 = 0;
-		else if(5 < position2) j2 = 2;
-		else j2 = 1;
-
-		// column 1
-		fit = 0;
-		for(c = 0; c < N2; ++c)
-			existArray[c] = NOT_USED;
-		pos = position1;
-		for(c = 0; c < N2; ++c){
-			if(existArray[ newState[pos] - 1 ])
-				++fit;
-			else
-				existArray[ newState[pos] - 1 ] = USED;
-			pos += N2;
-		}
-		fc1 = fit - mutFitnessList[position1];
-		mutFitnessList[position1] += fc1; ;
-
-		// column 2
-		fit = 0;
-		for(c = 0; c < N2; ++c)
-			existArray[c] = NOT_USED;
-		pos = position2;
-		for(c = 0; c < N2; ++c){
-			if(existArray[ newState[pos] - 1 ])
-				++fit;
-			else
-				existArray[ newState[pos] - 1 ] = USED;
-			pos += N2;
-		}
-		fc2 = fit - mutFitnessList[position2];
-		mutFitnessList[position2] += fc2; ;
-
-
-		// block1
-		offs = k * N2 * N  + j1 * N;
-		fit = 0;
-		for(c = 0; c < N2; ++c)
-			existArray[c] = NOT_USED;
-
-		for(c = 0; c < N2; ++c){
-			if(c == N)
-				offs = offs + N + N;
-			if(c == N + N)
-				offs = offs + N + N;
-			pos = c  + offs;
-
-			if(existArray[ newState[pos] - 1 ])
-				++fit;
-			else
-				existArray[ newState[pos] - 1 ] = USED;
-		}
-		fb1 = fit - mutFitnessList[k*3 + j1 + N2];
-		mutFitnessList[k*3 + j1 + N2] += fb1; ;
-
-		// block2
-		fb2 = 0;
-		if(j1 != j2 ){
-			offs = k * N2 * N  + j2 * N;
-			fit = 0;
-
-			for(c = 0; c < N2; ++c)
-				existArray[c] = NOT_USED;
-
-			for(c = 0; c < N2; ++c){
-				if(c == N)
-					offs = offs + N + N;
-				if(c == N + N)
-					offs = offs + N + N;
-				pos = c  + offs;
-
-				if(existArray[ newState[pos] - 1 ])
-					++fit;
-				else
-					existArray[ newState[pos] - 1 ] = USED;
-			}
-			fb2 = fit - mutFitnessList[k*3 + j2 + N2];
-			mutFitnessList[k*3 + j2 + N2] += fb2;
-		}
-
-		// fitness
-		return currentFitness + fc1 + fc2 + fb1 + fb2;
-
+		return new SwapPositionModel(row, col1, col2);
 	}
 
-		 */
-
-	}
-
-	private static final void swapValuesInRow(int rowValues[], int col1, int col2) {
+	private static void swapValuesInRow(int[] rowValues, int col1, int col2) {
 		// swap positions
 		int swap = rowValues[col1];
 		rowValues[col1] = rowValues[col2];
 		rowValues[col2] = swap;
+	}
+
+	@Override
+	public String toString ()
+	{
+		return "Fitness=" //
+			+ AnsiColorCodes.ANSI_GREEN + fitness + AnsiColorCodes.ANSI_GREEN //
+			+ " colFitness=" + Arrays.toString(colFitnessList) //
+			+ " blockFitness=" + Arrays.toString(blockFitnessList) //
+			+ "\n" + stateToStringBuilder();
+	}
+
+	private StringBuilder stateToStringBuilder () {
+		StringBuilder b = new StringBuilder();
+		for (int row = 0; row < N2; row++) {
+			for (int col = 0; col < N2; col++) {
+				int value = state[row][col];
+				// TODO mark fixed values by colors
+				b.append(value == 0 ? "." : String.valueOf(value));
+				b.append(" ");
+				if (col % N == 2 && col + 1 < N2) {
+					b.append(" ");
+				}
+			}
+			if (row + 1 < N2) {
+				b.append(System.lineSeparator());
+			}
+		}
+
+		return b;
 	}
 }

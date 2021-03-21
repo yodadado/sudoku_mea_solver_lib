@@ -13,4 +13,14 @@ public class Utils
 
 		return matrix2;
 	}
+
+	public static void matrixcopy (int[][] src, int[][] dest) {
+		for (int i = 0; i < src.length; i++) {
+			System.arraycopy(src[i], 0, dest[i], 0, src[0].length);
+		}
+	}
+
+	public static void arraycopy (int[] src, int[] dest) {
+		System.arraycopy(src, 0, dest, 0, src.length);
+	}
 }

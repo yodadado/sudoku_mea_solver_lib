@@ -8,11 +8,11 @@ import java.util.Random;
 import lombok.Getter;
 
 @Getter
-public class EliteList<T>
+public class EliteList<S extends AgentState>
 {
 	private final Random random;
 	private final int maxSize;
-	private final RandomAccessPriorityQueue<AgentState<T>> list;
+	private final RandomAccessPriorityQueue<S> list;
 
 	public EliteList (Random random, int maxSize)
 	{
@@ -20,7 +20,7 @@ public class EliteList<T>
 		this.maxSize = maxSize;
 
 		// (from biggest fitnes to smallest fitness)
-		Comparator<AgentState<T>> fitnessDescComparator = (state1, state2) -> state2.getFitness() - state1.getFitness();
+		Comparator<S> fitnessDescComparator = (state1, state2) -> state2.getFitness() - state1.getFitness();
 
 		list = new RandomAccessPriorityQueue<>(maxSize, fitnessDescComparator);
 	}
@@ -29,11 +29,11 @@ public class EliteList<T>
 	 * Add state to elite list. If list is already full,
 	 * new state isinserted only if has better or same fitness than the worst state in list.
 	 *
-	 * @param item
+	 * @param agentState
 	 * @return <code>true</code> if new state for added.
 	 */
 	// TODO rename
-	public boolean pushState (AgentState<T> agentState)
+	public boolean pushState (S agentState)
 	{
 		Objects.requireNonNull(agentState, "Inserted agent state must be defined");
 		if (list.size() < maxSize)
@@ -42,7 +42,7 @@ public class EliteList<T>
 		}
 		else
 		{
-			AgentState<T> worstFitnessItem = list.peek();
+			S worstFitnessItem = list.peek();
 			if (agentState.getFitness() <= worstFitnessItem.getFitness())
 			{
 				list.poll();
@@ -53,7 +53,7 @@ public class EliteList<T>
 		return false;
 	}
 
-	public Optional<AgentState<T>> getRandomState ()
+	public Optional<S> getRandomState ()
 	{
 		if (list.isEmpty())
 		{
