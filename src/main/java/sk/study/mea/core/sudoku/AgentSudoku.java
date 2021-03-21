@@ -1,7 +1,6 @@
 package sk.study.mea.core.sudoku;
 
 import static sk.study.mea.core.sudoku.SudokuConstants.*;
-import sk.study.mea.core.Agent;
 
 /**
  * Class AgentSudoku represent implemetation of Sudoku agent, which is used by MEA Sudoku algorithm.
@@ -13,8 +12,8 @@ import sk.study.mea.core.Agent;
 public class AgentSudoku // TODO implements Agent
 {
 	private final SudokuState fixed; // TODO rename
-	private final SudokuRowsEmptyPositions fixedList; // TODO rename
-	private final SudokuTabuList tabuList; // TODO rename
+	private final SudokuEmptyRowColumns fixedList; // TODO rename
+	private final SudokuTabuListOld tabuList; // TODO rename
 
 	private final int parMaxTrials; // parameter
 	private final int lifePoints;
@@ -35,8 +34,10 @@ public class AgentSudoku // TODO implements Agent
 
 	// parStartLifePoints, fixedState, fixedLists, parMaxTrials, tabuList
 
-	public AgentSudoku (SudokuState fixed, SudokuRowsEmptyPositions fixedList, SudokuTabuList tabuList, int parMaxTrials, int lifePoints)
+	public AgentSudoku (SudokuState fixed, SudokuEmptyRowColumns fixedList, SudokuTabuListOld tabuList, int parMaxTrials, int lifePoints)
 	{
+		// TODO AnalysedSudokuProblemDefinition problemDef;
+
 		this.fixed = fixed;
 		this.fixedList = fixedList;
 		this.tabuList = tabuList;
@@ -61,7 +62,7 @@ public class AgentSudoku // TODO implements Agent
 	};
 
 	public boolean localSearchUseHeuristic() {
-
+		return false; // TODO
 	};
 }
 

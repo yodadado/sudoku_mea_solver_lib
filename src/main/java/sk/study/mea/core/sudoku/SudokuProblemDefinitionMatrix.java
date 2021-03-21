@@ -1,5 +1,7 @@
 package sk.study.mea.core.sudoku;
 
+import sk.study.mea.core.AnsiColorCodes;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -38,6 +40,11 @@ public final class SudokuProblemDefinitionMatrix implements SudokuProblemDefinit
 		return state[row][col] == EMPTY_POSITION_VALUE;
 	}
 
+	@Override public int[][] getStateCopy ()
+	{
+		return Utils.cloneMatrix(state);
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
@@ -46,7 +53,8 @@ public final class SudokuProblemDefinitionMatrix implements SudokuProblemDefinit
 			for (int col = 0; col < N2; col++) {
 				String valueString = getValue(row, col)
 					.map(String::valueOf)
-					.orElse(" ");
+					.map(this::colorizeFixedValue)
+					.orElse(".");
 				b.append(valueString);
 				b.append(" ");
 				if (col % N == 2 && col + 1 < N2) {
@@ -59,6 +67,10 @@ public final class SudokuProblemDefinitionMatrix implements SudokuProblemDefinit
 		}
 
 		return b.toString();
+	}
+
+	private String colorizeFixedValue (String value) {
+		return AnsiColorCodes.ANSI_GREEN + value + AnsiColorCodes.ANSI_RESET;
 	}
 
 	private void validateState (int[] inputState) {

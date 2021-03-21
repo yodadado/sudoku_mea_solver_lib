@@ -3,23 +3,24 @@ package sk.study.mea.core.sudoku;
 import sk.study.mea.core.Agent;
 import sk.study.mea.core.Mea;
 import sk.study.mea.core.MeaConfiguration;
+import sk.study.mea.core.ProblemState;
 
 /**
  * This is implemetation of {@link Mea} for solving Sudoku problem.
  *
  * @author David Durcak
  */
-public class MeaSudoku extends Mea<SudokuProblemDefinition>
+public class MeaSudoku extends Mea<SudokuProblemDefinition, ProblemState>
 {
-	private final SudokuRowsEmptyPositions fixedLists; // TODO rename
-	private final SudokuTabuList tabuList; // TODO rename
+	private final SudokuEmptyRowColumns fixedLists; // TODO rename
+	private final SudokuTabuListOld tabuList; // TODO rename
 
 	public MeaSudoku (MeaConfiguration cfg, SudokuProblemDefinition problemDefinition)
 	{
 		super(cfg, problemDefinition);
 
-		fixedLists = new SudokuRowsEmptyPositions(problemDefinition);
-		tabuList = new SudokuTabuList(problemDefinition);
+		fixedLists = null; // TODO new SudokuRowsEmptyPositions(problemDefinition);
+		tabuList = null; // TODO new SudokuTabuList(problemDefinition);
 	}
 
 	@Override
@@ -29,7 +30,6 @@ public class MeaSudoku extends Mea<SudokuProblemDefinition>
 		// TODO
 		//(*itAgent)->generateNewState();
 
-		return new AgentSudoku (getFixedState(), fixedLists, tabuList,
-			getCfg().getMaxTrials(), getCfg().getStartLifePoints());
+		return null; // TODOnew AgentSudoku (getFixedState(), fixedLists, tabuList, getCfg().getMaxTrials(), getCfg().getStartLifePoints());
 	}
 }

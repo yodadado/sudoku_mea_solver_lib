@@ -8,6 +8,7 @@ import java.util.Objects;
 import static sk.study.mea.core.sudoku.SudokuConstants.N2;
 import static sk.study.mea.core.sudoku.SudokuConstants.N4;
 
+@Deprecated
 public class BaseSudokuState implements NPProblemDefinition
 {
 	protected int[] state = new int[N4];

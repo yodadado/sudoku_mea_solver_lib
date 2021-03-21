@@ -8,6 +8,7 @@ import java.util.Random;
 
 import static sk.study.mea.core.sudoku.SudokuConstants.*;
 
+@Deprecated
 public class SudokuState implements NPProblemDefinition
 {
 	private final int[] state = new int[N4];

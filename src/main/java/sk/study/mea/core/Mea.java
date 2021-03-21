@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  *
  * @author David Durcak
  */
-@Slf4j
+//@Slf4j
 public abstract class Mea<D extends NPProblemDefinition, S extends ProblemState>
 {
 
