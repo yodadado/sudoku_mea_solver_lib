@@ -4,10 +4,9 @@ import java.util.Optional;
 
 public interface Agent<S extends AgentState>
 {
-	int getOptimalFitness();
 	S getCurrentState();
+
 	Optional<S> getMilestoneState();
-	boolean isCurrentFitnessOptimal();
 
 
 	/**
@@ -15,8 +14,12 @@ public interface Agent<S extends AgentState>
 	 *
 	 * @return {@code true} if current state was replaced by mutated state
 	 */
+	// TODO return enum [BETTER ,EQ, WORSE ]
 	boolean localSearch();
+
 	int addLifePoints();
+
 	int decLifePoints();
+
 	void resetMilestoneState();
 }

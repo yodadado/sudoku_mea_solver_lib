@@ -1,9 +1,8 @@
 package sk.study.mea.core.sudoku;
 
 
-import sk.study.mea.core.AnsiColorCodes;
+import sk.study.mea.core.utils.AnsiColorCodes;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 
 import static sk.study.mea.core.sudoku.SudokuConstants.N2;
@@ -44,7 +43,7 @@ public class SudokuMissingRowValues
 		for (int col = 0; col < N2; col++) {
 			Optional<Integer> value = problemDef.getValue(row, col);
 			if (value.isPresent()) {
-				missingValues.remove(value);
+				missingValues.remove(value.get());
 			}
 		}
 

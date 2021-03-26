@@ -1,13 +1,10 @@
 package sk.study.mea.core.sudoku;
 
-import sk.study.mea.core.NPProblemDefinition;
+import sk.study.mea.core.ProblemDefinition;
 
 import java.util.Optional;
 
-import static sk.study.mea.core.sudoku.SudokuConstants.N;
-import static sk.study.mea.core.sudoku.SudokuConstants.N2;
-
-public interface SudokuProblemDefinition extends NPProblemDefinition
+public interface SudokuProblemDefinition extends ProblemDefinition
 {
 	Optional<Integer> getValue(int row, int col);
 

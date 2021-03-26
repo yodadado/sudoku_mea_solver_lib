@@ -2,6 +2,8 @@ package sk.study.mea.core.sudoku;
 
 public class SudokuConstants
 {
+
+	// TODO
 	public static final int N = 3;
 	public static final int N2 = N * N;
 	public static final int N4 = N2 * N2;

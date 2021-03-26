@@ -1,6 +1,7 @@
 package sk.study.mea.core.sudoku;
 
-import sk.study.mea.core.AnsiColorCodes;
+import sk.study.mea.core.utils.AnsiColorCodes;
+import sk.study.mea.core.utils.Utils;
 
 import java.util.Objects;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package sk.study.mea.core.sudoku;
+package sk.study.mea.core.utils;
 
 public class Utils
 {

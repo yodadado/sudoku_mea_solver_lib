@@ -5,14 +5,14 @@ import lombok.Getter;
 import java.util.Optional;
 
 @Getter
-public final class AnalysedSudokuProblemDefinition implements SudokuProblemDefinition
+public final class SudokuAnalysedProblemDefinition implements SudokuProblemDefinition
 {
 	private final SudokuProblemDefinition problemDef;
 	private final SudokuMissingRowValues missingRowValues;
 	private final SudokuEmptyRowColumns emptyRowColumns;
 	private final SudokuTabuList tabuList;
 
-	public AnalysedSudokuProblemDefinition (SudokuProblemDefinition problemDef) {
+	public SudokuAnalysedProblemDefinition (SudokuProblemDefinition problemDef) {
 		this.problemDef = problemDef;
 		this.missingRowValues = new SudokuMissingRowValues(problemDef);
 		this.emptyRowColumns = new SudokuEmptyRowColumns(problemDef);
@@ -41,5 +41,14 @@ public final class AnalysedSudokuProblemDefinition implements SudokuProblemDefin
 	public int[][] getStateCopy ()
 	{
 		return getProblemDef().getStateCopy();
+	}
+
+	@Override public String toString ()
+	{
+		return "AnalysedSudokuProblemDefinition{"
+			+ "problemDef=\n" + problemDef
+			+ ",\nmissingRowValues=\n" + missingRowValues
+			+ ",\nemptyRowColumns=\n" + emptyRowColumns
+			+ ",\ntabuList=\n" + tabuList + '}';
 	}
 }

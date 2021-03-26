@@ -1,5 +1,6 @@
 package sk.study.mea.core;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -7,6 +8,7 @@ import lombok.Data;
  * @author David Durcak
  */
 @Data
+@Builder
 public class MeaConfiguration
 {
 	// Parameters

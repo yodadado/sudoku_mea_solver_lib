@@ -7,98 +7,93 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Class MEA represent implemetation of Multiagent Evolution Algorithm invented by David Chudoba.
+ * Class MEA represent implementation of MultiAgent Evolution Algorithm created by David Chalupa.
  *
- * David Chalupa: Population-based and learning-based metaheuristic algorithms for the graph coloring problem. GECCO 2011: 465-472
+ * It is optimization algorithm, that can be used for finding optimal or nearly optimal solutions of NP problems.
+ * Algorithm use population of agents and every one of them represents any suboptimal or optimal solution rated by fitness function.
+ * Agents are dynamically created and destroyed depending of their fitness value and number of life points.
+ * At the beginning, agents states (problem proposed solution representation) are randomly generated.
+ * In cycle, their are randomly mutated and their fitness rate is evaluated until solution with optimal fitness rate is found
+ * or maximum generation is reached.
  *
- * Main method is optimize().
- * Agents are represented by list of AgentSudoku objects.
- * Elite_list object represent elite list data structure.
+ * @see <a href="https://opac.crzp.sk/?fn=detailBiblioForm&sid=839654DF12ADE2F5228B95FB778B">Dávid Durčák: Využitie multiagentového evolučného algoritmu v probléme z umelej inteligencie - Batchelor thesis</a>
+ * @see <a href="https://opac.crzp.sk/?fn=detailBiblioForm&sid=DEAC73F7171E81681622175D4860">David Chudoba: Evolučný algoritmus pre optimalizáciu tried - Master thesis</a>
+ * @see <a href="http://www2.fiit.stuba.sk/~kvasnicka/Seminar_of_AI/Chalupa_seminar%20UI%20Maj2011.pdf">David Chudoba: Evolučný algoritmus pre optimalizáciu tried</a>
  *
  * @author David Durcak
  */
 //@Slf4j
-public abstract class Mea<D extends NPProblemDefinition, S extends AgentState>
+public abstract class Mea<P extends ProblemDefinition, S extends AgentState>
 {
-
-	@Getter
-	private final D fixedState; // TODO rename
 	@Getter
 	private final MeaConfiguration cfg;
+
+	@Getter
+	private final P problemDef;
+
+	@Getter
 	private final Random random;
+
 	private final EliteList<S> eliteList;
+
 	private List<Agent<S>> agents;
 
-//	private final Object fixedState; // TODO *int
-//	private final List<Object> fixedList; // TODO *int
-//	private final List<Object> tabuList; // TODO *int
-//
 //	private int counterAgents; // TODO
 //	private int counterTrial; // TODO
 
-//	private final SudokuFixedState fixedState;
-
-
-	//		std::list< AgentSudoku * >  agents;    // list of agents
-	//
-	//		static int	counterTrial;
-	//		int			counterAgents;
-	//
-	//		int		*tabuList;
-	//		int		*fixedState;
-	//		int		*fixedLists;
-	public Mea(MeaConfiguration cfg, D problemDefinition)
+	/**
+	 * Create new instance of Mea class.
+	 *
+	 * @param cfg the Mea algorithm configuration parameters
+	 * @param problemDef the optimization problem definition
+	 */
+	public Mea(MeaConfiguration cfg, P problemDef)
 	{
-		this.fixedState = problemDefinition;
+		this.problemDef = problemDef;
 		this.cfg = cfg;
 		this.random = new Random();
-
 		this.eliteList = new EliteList<>(random, cfg.getElitelistSize());
-		// initialization of fixedLists
-		// its matrix NN rows x (NN+1) columns ,  1. in column is count non fixed positions in row
-		//fixedLists = new int[N4 + N2]);
 
-
-
-		//		private final EliteList eliteList;
-		//		private final List<Agent> agents;
-		//
-		//		private final Object fixedState; // TODO *int
-		//		private final List<Object> fixedList; // TODO *int
-		//		private final List<Object> tabuList; // TODO *int
-
-		//fixedState = new SudokuFixedState(givenState);
-		// TODO initialize random
-		// counterTrial = 0;
-		// fixedLists	= NULL;
-		// tabuList	= NULL;
+		// TODO counterTrial = 0;
 	}
 
 	/**
-	 * main MEA optimalization method ( function of MEA)
-	 * @return
+	 * Main MEA optimization algorithm method.
+	 * @return optional problem solution
 	 */
-	int optimize ()
+	public Optional<S> optimize ()
 	{
 		eliteList.clear();
 		agents = generateAgents();
 
-		return -1; // TODO not implemented
+		int generation = 0;
+		Optional<S> solution;
+		int counterTrial = 0;
+
+		int maxFitTrias = getCfg().getMaxGenerations() - 2 * getCfg().getNumAgents();
+		while (counterTrial < maxFitTrias) {
+			generation++;
+			solution = controlFitness();
+			if (solution.isPresent()) {
+				return solution;
+			}
+
+			decreaseAgentsLifePointsAndEliminate();
+
+			if ( 0 == generation % cfg.getBirthStep() //
+				&& agents.size() < getCfg().getNumAgents()) {
+				birthNewAgent(generation);
+			}
+
+			localSearch(generation);
+		}
+		// TODO return best one found (for other problem types)
+		return Optional.empty();
 	}
 
-
-//	/**
-//	 * start initialization, load & prepare data
-//	 * @return
-//	 */
-//	private int initialization ()
-//	{
-//		return -1; // TODO not implemented
-//	}
-
 	/**
-	 * generate initial ppopulation of agents
-	 * @return
+	 * Generate a initial agents population.
+	 * @return list of generated agents
 	 */
 	private List<Agent<S>> generateAgents ()
 	{
@@ -107,25 +102,44 @@ public abstract class Mea<D extends NPProblemDefinition, S extends AgentState>
 			.collect(Collectors.toList());
 	}
 
+	/**
+	 * Generate agent with initial state.
+	 * @return generated agent.
+	 */
 	protected abstract Agent<S> generateAgent ();
 
-	// chceck if solution was found
-	//private const	int		*controlFitness() const;
-	// TODO toto vracalo pointer
+	/**
+	 * Control all agents current states whether optimal solution was found.
+	 * @return optional problem solution
+	 */
 	private Optional<S> controlFitness ()
 	{
 		return agents.stream()
-			.filter(Agent::isCurrentFitnessOptimal)
+			.filter(this::isAgentCurrentStateOptimal)
 			.map(Agent::getCurrentState)
 			.findAny();
 	}
 
 	/**
-	 * decrease of lifespan and elimination of agents, that don't have any life points
-	 * (push bestmilestone state to Elit List)
-	 * @return
+	 * Control if input agent current state is optimal solution was found.
+	 * @param agent the agent
+	 * @return {@code true} if agent current state is optimal
 	 */
-	private void decLifePointsAndEliminate ()
+	protected boolean isAgentCurrentStateOptimal(Agent<S> agent) {
+		return getOptimalFitness() == agent.getCurrentState().getFitness();
+	}
+
+	/**
+	 * Get optimal fitness value.
+	 * @return optimal fitness rate value
+	 */
+	protected abstract int getOptimalFitness();
+
+	/**
+	 * Decrease all agents life points and eliminate these which dont left any life points.
+	 * When agents is eliminated its best milestone state (or current state, if milestone is not exist) is pushed to elite list structure.
+	 */
+	private void decreaseAgentsLifePointsAndEliminate ()
 	{
 		Iterator<Agent<S>> agentIt = agents.iterator();
 		while (agentIt.hasNext()) {
@@ -145,8 +159,9 @@ public abstract class Mea<D extends NPProblemDefinition, S extends AgentState>
 	}
 
 	/**
-	 * birth new agent(get state from elit list)
-	 * @return
+	 * Birth new agents to renew agents population to its maximum size.
+	 * New agents are bornt with states, that are randomly picked from elite list.
+	 * @param generation the current generation
 	 */
 	private void birthNewAgent (int generation)
 	{
@@ -167,12 +182,16 @@ public abstract class Mea<D extends NPProblemDefinition, S extends AgentState>
 		}
 	}
 
+	/**
+	 * Create (birth) new agent with input state to renew agents population to its maximum size.
+	 * New agents are bornt with states, that are randomly picked from elite list.
+	 * @param state the initial agent state
+	 */
 	protected abstract Agent<S> createAgentWithState (S state);
 
 	/**
-	 * local search
-	 * @param generation
-	 * @return
+	 * The local search algorithm step. For each agent individually, process of local search is run.
+	 * @param generation the current optimization generation
 	 */
 	private void localSearch (int generation)
 	{
@@ -182,6 +201,11 @@ public abstract class Mea<D extends NPProblemDefinition, S extends AgentState>
 		}
 	}
 
+	/**
+	 * The imput agent local search.
+	 * @param generation the current optimization generation
+	 * @param agent the agent
+	 */
 	protected void localSearch (int generation, Agent<S> agent) {
 		// reward or punishment
 		if (agent.localSearch()) {
@@ -193,4 +217,6 @@ public abstract class Mea<D extends NPProblemDefinition, S extends AgentState>
 			agent.resetMilestoneState();
 		}
 	}
+
+	// TODO toString
 }

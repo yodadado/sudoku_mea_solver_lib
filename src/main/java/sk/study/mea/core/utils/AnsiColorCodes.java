@@ -1,4 +1,4 @@
-package sk.study.mea.core;
+package sk.study.mea.core.utils;
 
 public class AnsiColorCodes {
 	public static final String ANSI_RESET = "\u001B[0m";

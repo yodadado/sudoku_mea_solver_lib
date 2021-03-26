@@ -2,8 +2,8 @@ package sk.study.mea.core.sudoku;
 
 import lombok.Getter;
 import sk.study.mea.core.AgentState;
-import sk.study.mea.core.AnsiColorCodes;
-import sk.study.mea.core.ProblemState;
+import sk.study.mea.core.utils.AnsiColorCodes;
+import sk.study.mea.core.utils.Utils;
 
 import java.util.*;
 
@@ -19,7 +19,7 @@ public class SudokuAgentState implements AgentState
 
 
 	// used when generating new agents
-	public SudokuAgentState (AnalysedSudokuProblemDefinition analysedProblemDef, Random random) {
+	public SudokuAgentState (SudokuAnalysedProblemDefinition analysedProblemDef, Random random) {
 		this.state = generateState(analysedProblemDef, random);
 		this.colFitnessList = fitnessForColumns(state);
 		this.blockFitnessList = fitnessForBlocks(state);
@@ -42,7 +42,7 @@ public class SudokuAgentState implements AgentState
 		this.fitness = other.getFitness();
 	}
 
-	private static int[][] generateState(AnalysedSudokuProblemDefinition analysedProblemDef, Random random) {
+	private static int[][] generateState(SudokuAnalysedProblemDefinition analysedProblemDef, Random random) {
 		int[][] newState = analysedProblemDef.getStateCopy();
 
 		// for each row=(sequence)
@@ -140,7 +140,7 @@ public class SudokuAgentState implements AgentState
 		return fitnessSum;
 	}
 
-	public SudokuAgentState mutate(Random random, AnalysedSudokuProblemDefinition analysedProblemDef) {
+	public SudokuAgentState mutate(Random random, SudokuAnalysedProblemDefinition analysedProblemDef) {
 		SudokuAgentState newState = new SudokuAgentState(this);
 		mutateAndRecalculateFitness (random, analysedProblemDef, newState);
 
@@ -156,7 +156,7 @@ public class SudokuAgentState implements AgentState
 	 * @param analysedProblemDef the analysed problem definiton
 	 * @param agentState the mutated agent
 	 */
-	private static void mutateAndRecalculateFitness (Random random, AnalysedSudokuProblemDefinition analysedProblemDef, SudokuAgentState agentState) {
+	private static void mutateAndRecalculateFitness (Random random, SudokuAnalysedProblemDefinition analysedProblemDef, SudokuAgentState agentState) {
 		int[][] state = agentState.state;
 		int[] colFitnessList = agentState.colFitnessList;
 		int[] blockFitnessList = agentState.blockFitnessList;
@@ -196,7 +196,7 @@ public class SudokuAgentState implements AgentState
 		agentState.fitness += fitDiffCol1 + fitDiffCol2 + fitDiffBlock1 + fitDiffBlock2;
 	}
 
-	private static SwapPositionModel getRandomSwapPositionUsingHeuristic (int[][] state, AnalysedSudokuProblemDefinition analysedProblemDef, Random random ) {
+	private static SwapPositionModel getRandomSwapPositionUsingHeuristic (int[][] state, SudokuAnalysedProblemDefinition analysedProblemDef, Random random ) {
 		int	numConflicts;
 		// random row with nofixed positions >= 2
 		int	tabuCounter = 0;
