@@ -7,7 +7,7 @@ import java.util.Optional;
 public abstract class BaseAgent<S extends AgentState> implements Agent<S>
 {
 	@Getter
-	private final int maxTrials; // parameter
+	private final AgentConfiguration cfg;
 
 	@Getter
 	private int lifePoints;
@@ -17,10 +17,10 @@ public abstract class BaseAgent<S extends AgentState> implements Agent<S>
 
 	protected S bestMilestoneState;
 
-	public BaseAgent (int maxTrials, int lifePoints, S currentState)
+	public BaseAgent (AgentConfiguration cfg, S currentState)
 	{
-		this.maxTrials = maxTrials;
-		this.lifePoints = lifePoints;
+		this.cfg = cfg;
+		this.lifePoints = cfg.getInitialLifePoints();
 		this.currentState = currentState;
 		this.bestMilestoneState = null;
 	}
@@ -44,7 +44,7 @@ public abstract class BaseAgent<S extends AgentState> implements Agent<S>
 	public boolean localSearch() {
 		S localBestMutState = null; // TODO rename bestMutatedState
 
-		for (int trial = 0; trial < maxTrials; trial++) {
+		for (int trial = 0; trial < getCfg().getMaxTrials(); trial++) {
 			// MEA::	addCounterTrials(); // TODO counterTrial++;
 			S mutatedState = mutateCurrentState();
 			if (localBestMutState == null //

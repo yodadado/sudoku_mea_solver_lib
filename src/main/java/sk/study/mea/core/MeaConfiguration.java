@@ -4,19 +4,17 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * MeaConfiguration
- * @author David Durcak
+ * Mea algorithm configuration parameters.
  */
 @Data
 @Builder
 public class MeaConfiguration
 {
-	// Parameters
-	private final int numAgents;
-	private final int maxGenerations;
-	private final int maxTrials;
-	private final int startLifePoints;
+	private final int agentPopulationMaxSize;
+	private final int generationsMaxCount;
 	private final int birthStep;
 	private final int milestoneStep;
-	private final int elitelistSize;
+	private final int elitelistMaxSize;
+	private final AgentConfiguration agentCfg;
+
 }

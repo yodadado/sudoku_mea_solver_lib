@@ -1,6 +1,7 @@
 package sk.study.mea.core.sudoku;
 
 import org.junit.jupiter.api.Test;
+import sk.study.mea.core.AgentConfiguration;
 import sk.study.mea.core.MeaConfiguration;
 
 import java.util.Optional;
@@ -16,33 +17,39 @@ public class TestSudokuFixedState
 		System.out.println("\n\n"+problemDefA);
 
 		MeaConfiguration easyCfg = MeaConfiguration.builder()
-			.numAgents(80)
-			.maxGenerations(100_000)
-			.maxTrials(2)
-			.startLifePoints(300)
+			.agentPopulationMaxSize(80)
+			.generationsMaxCount(100_000)
 			.birthStep(60)
 			.milestoneStep(60)
-			.elitelistSize(80)
+			.elitelistMaxSize(80)
+			.agentCfg(AgentConfiguration.builder()
+				.maxTrials(2)
+				.initialLifePoints(300)
+				.build())
 			.build();
 
 		MeaConfiguration mediumCfg = MeaConfiguration.builder()
-			.numAgents(150)
-			.maxGenerations(500_000)
-			.maxTrials(3)
-			.startLifePoints(400)
+			.agentPopulationMaxSize(150)
+			.generationsMaxCount(500_000)
 			.birthStep(60)
 			.milestoneStep(60)
-			.elitelistSize(150)
+			.elitelistMaxSize(150)
+			.agentCfg(AgentConfiguration.builder()
+				.maxTrials(3)
+				.initialLifePoints(400)
+				.build())
 			.build();
 
 		MeaConfiguration hardCfg = MeaConfiguration.builder()
-			.numAgents(300)
-			.maxGenerations(1_000_000)
-			.maxTrials(5)
-			.startLifePoints(500)
+			.agentPopulationMaxSize(300)
+			.generationsMaxCount(1_000_000)
 			.birthStep(60)
 			.milestoneStep(60)
-			.elitelistSize(300)
+			.elitelistMaxSize(300)
+			.agentCfg(AgentConfiguration.builder()
+				.maxTrials(5)
+				.initialLifePoints(500)
+				.build())
 			.build();
 
 		SudokuMea mea = new SudokuMea(easyCfg, problemDefM);

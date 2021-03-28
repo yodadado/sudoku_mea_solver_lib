@@ -7,8 +7,6 @@ import static sk.study.mea.core.sudoku.SudokuConstants.OPTIMAL_FITNESS;
 
 /**
  * This is implemetation of {@link Mea} for solving Sudoku problem.
- *
- * @author David Durcak
  */
 public class SudokuMea extends Mea<SudokuProblemDefinition, SudokuAgentState>
 {
@@ -27,11 +25,11 @@ public class SudokuMea extends Mea<SudokuProblemDefinition, SudokuAgentState>
 
 	@Override protected SudokuAgent generateAgent ()
 	{
-		return new SudokuAgent(getCfg().getMaxTrials(), getCfg().getStartLifePoints(), getRandom(), getAnalysedProblemDef());
+		return new SudokuAgent(getCfg().getAgentCfg(), getRandom(), getAnalysedProblemDef());
 	}
 
 	@Override protected Agent<SudokuAgentState> createAgentWithState (SudokuAgentState state)
 	{
-		return new SudokuAgent(getCfg().getMaxTrials(), getCfg().getStartLifePoints(), getRandom(), getAnalysedProblemDef(), state);
+		return new SudokuAgent(getCfg().getAgentCfg(), getRandom(), getAnalysedProblemDef(), state);
 	}
 }

@@ -19,8 +19,6 @@ import java.util.stream.Stream;
  * @see <a href="https://opac.crzp.sk/?fn=detailBiblioForm&sid=839654DF12ADE2F5228B95FB778B">Dávid Durčák: Využitie multiagentového evolučného algoritmu v probléme z umelej inteligencie - Batchelor thesis</a>
  * @see <a href="https://opac.crzp.sk/?fn=detailBiblioForm&sid=DEAC73F7171E81681622175D4860">David Chudoba: Evolučný algoritmus pre optimalizáciu tried - Master thesis</a>
  * @see <a href="http://www2.fiit.stuba.sk/~kvasnicka/Seminar_of_AI/Chalupa_seminar%20UI%20Maj2011.pdf">David Chudoba: Evolučný algoritmus pre optimalizáciu tried</a>
- *
- * @author David Durcak
  */
 //@Slf4j
 public abstract class Mea<P extends ProblemDefinition, S extends AgentState>
@@ -52,7 +50,7 @@ public abstract class Mea<P extends ProblemDefinition, S extends AgentState>
 		this.problemDef = problemDef;
 		this.cfg = cfg;
 		this.random = new Random();
-		this.eliteList = new EliteList<>(random, cfg.getElitelistSize());
+		this.eliteList = new EliteList<>(random, cfg.getElitelistMaxSize());
 
 		// TODO counterTrial = 0;
 	}
@@ -70,7 +68,7 @@ public abstract class Mea<P extends ProblemDefinition, S extends AgentState>
 		Optional<S> solution;
 		int counterTrial = 0;
 
-		int maxFitTrias = getCfg().getMaxGenerations() - 2 * getCfg().getNumAgents();
+		int maxFitTrias = getCfg().getGenerationsMaxCount() - 2 * getCfg().getAgentPopulationMaxSize();
 		while (counterTrial < maxFitTrias) {
 			generation++;
 			solution = controlFitness();
@@ -81,7 +79,7 @@ public abstract class Mea<P extends ProblemDefinition, S extends AgentState>
 			decreaseAgentsLifePointsAndEliminate();
 
 			if ( 0 == generation % cfg.getBirthStep() //
-				&& agents.size() < getCfg().getNumAgents()) {
+				&& agents.size() < getCfg().getAgentPopulationMaxSize()) {
 				birthNewAgent(generation);
 			}
 
@@ -98,7 +96,7 @@ public abstract class Mea<P extends ProblemDefinition, S extends AgentState>
 	private List<Agent<S>> generateAgents ()
 	{
 		return Stream.generate(this::generateAgent)
-			.limit(getCfg().getNumAgents())
+			.limit(getCfg().getAgentPopulationMaxSize())
 			.collect(Collectors.toList());
 	}
 
@@ -165,7 +163,7 @@ public abstract class Mea<P extends ProblemDefinition, S extends AgentState>
 	 */
 	private void birthNewAgent (int generation)
 	{
-		if (agents.size() < getCfg().getNumAgents()
+		if (agents.size() < getCfg().getAgentPopulationMaxSize()
 			&& 0 == generation % getCfg().getBirthStep()) {
 
 			Optional<S> randomAgentState = eliteList.getRandomState();
