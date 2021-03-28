@@ -12,9 +12,9 @@ public class TestSudokuFixedState
 	@Test
 	void testSudokuProblemDefinitionMatrix() {
 		SudokuProblemDefinition problemDefM = new SudokuProblemDefinitionMatrix (getSudokuMatrix());
-		SudokuProblemDefinition problemDefA = new SudokuProblemDefinitionMatrix (getSudokuArray());
+		//SudokuProblemDefinition problemDefA = new SudokuProblemDefinitionMatrix (getSudokuArray());
 		System.out.println("\n\n"+problemDefM);
-		System.out.println("\n\n"+problemDefA);
+		//System.out.println("\n\n"+problemDefA);
 
 		MeaConfiguration easyCfg = MeaConfiguration.builder()
 //			.agentPopulationMaxSize(80)
@@ -53,7 +53,7 @@ public class TestSudokuFixedState
 				.build())
 			.build();
 
-		SudokuMea mea = new SudokuMea(easyCfg, problemDefM);
+		SudokuMea mea = new SudokuMea(hardCfg, problemDefM);
 		//System.out.println(mea.getAnalysedProblemDef());
 
 

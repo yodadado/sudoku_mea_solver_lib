@@ -46,9 +46,14 @@ public class SudokuTabuList
 	private void initForValue (int valueRow, int valueCol, int value) {
 		int valueIdx = value - 1;
 
-		// tabu value in whole colum
+		// tabu value in whole column
 		for (int row = 0; row < N2; row++) {
 			tabu[row][valueCol][valueIdx] = true;
+		}
+
+		// tabu value in whole row
+		for (int col = 0; col < N2; col++) {
+			tabu[valueRow][col][valueIdx] = true;
 		}
 
 		// tabu value in whole block
