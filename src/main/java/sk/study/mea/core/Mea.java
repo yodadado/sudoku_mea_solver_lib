@@ -66,8 +66,9 @@ public abstract class Mea<P extends ProblemDefinition, S extends AgentState>
 
 		int generation = 0;
 		Optional<S> solution;
-		int counterTrial = 0;
+		int counterTrial = 0; //
 
+		// TODO refacot
 		int maxFitTrias = getCfg().getGenerationsMaxCount() - 2 * getCfg().getAgentPopulationMaxSize();
 		while (counterTrial < maxFitTrias) {
 			generation++;
@@ -84,6 +85,10 @@ public abstract class Mea<P extends ProblemDefinition, S extends AgentState>
 			}
 
 			localSearch(generation);
+
+			counterTrial += agents.size()*cfg.getAgentCfg().getMaxTrials();
+
+			// TODO System.out.println(String.format("#%d/%d : popSize=%d", counterTrial, maxFitTrias, agents.size()));
 		}
 		// TODO return best one found (for other problem types)
 		return Optional.empty();

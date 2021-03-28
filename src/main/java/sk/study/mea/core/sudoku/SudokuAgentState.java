@@ -184,11 +184,11 @@ public class SudokuAgentState implements AgentState
 		int blockStartCol1 = col1 < N ? 0 : ((col1 < N + N) ? N : N + N);
 		int blockStartCol2 = col2 < N ? 0 : ((col2 < N + N) ? N : N + N);
 
-		int block1 = blockStartRow + col1 % N;
-		int block2 = blockStartRow + col2 % N;
+		int block1 = blockStartRow + col1 / N;
+		int block2 = blockStartRow + col2 / N;
 
-		int fitDiffBlock1 = fitnessForBlock(state, valueUsed, blockStartRow, blockStartCol1) - blockFitnessList[col1];
-		int fitDiffBlock2 = fitnessForBlock(state, valueUsed, blockStartRow, blockStartCol2) - blockFitnessList[col2];
+		int fitDiffBlock1 = fitnessForBlock(state, valueUsed, blockStartRow, blockStartCol1) - blockFitnessList[block1];
+		int fitDiffBlock2 = fitnessForBlock(state, valueUsed, blockStartRow, blockStartCol2) - blockFitnessList[block2];
 		blockFitnessList[block1] += fitDiffBlock1;
 		blockFitnessList[block2] += fitDiffBlock2;
 

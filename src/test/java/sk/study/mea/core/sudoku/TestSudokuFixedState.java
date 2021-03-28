@@ -17,6 +17,7 @@ public class TestSudokuFixedState
 		System.out.println("\n\n"+problemDefA);
 
 		MeaConfiguration easyCfg = MeaConfiguration.builder()
+//			.agentPopulationMaxSize(80)
 			.agentPopulationMaxSize(80)
 			.generationsMaxCount(100_000)
 			.birthStep(60)
