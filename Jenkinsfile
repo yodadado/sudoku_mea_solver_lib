@@ -1,18 +1,22 @@
 pipeline {
   agent any
+  tools {
+    maven 'Maven3.8.2'
+    jdk 'adoptjdk11'
+  }
   stages {
     stage("build") {
       steps {
         echo 'building the application...'
         echo 'second message'
-        // mvn compile
+        sh 'mvn compile'
       }
     }
     
     stage("test") {
       steps {
         echo 'testing the application...'
-        //mvn test
+        sh 'mvn test'
       }
     }
     
