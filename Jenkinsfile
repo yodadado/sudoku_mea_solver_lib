@@ -25,7 +25,6 @@ pipeline {
       }
       steps {
         echo 'testing the application...'
-        echi 
         sh 'mvn test'
       }
     }
