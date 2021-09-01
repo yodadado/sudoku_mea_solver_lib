@@ -4,7 +4,8 @@ pipeline {
     stage("build") {
       steps {
         echo 'building the application...'
-        // mvn clean build
+        echo 'second message'
+        // mvn compile
       }
     }
     
